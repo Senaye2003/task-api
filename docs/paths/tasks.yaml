@@ -1,53 +1,54 @@
-get:
-  summary: List all tasks
-  tags:
-    - \Tasks
-  parameters:
-    - name: completed
-      in: query
-      required: false
-      description: Filter tasks by completion status
-      schema:
-        type: boolean
-        example: true
-    - name: limit
-      in: query
-      required: false
-      description: Maximum number of tasks to return
-      schema:
-        type: integer
-        example: 10
-  responses:
-    '200':
-      description: OK
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: ../components/schemas/Task.yaml
-
-post:
-  summary: Create a new task
-  tags:
-    - \Tasks
-  requestBody:
-    required: true
-    content:
-      application/json:
+/tasks:
+  get:
+    summary: List all tasks
+    tags:
+      - Tasks
+    parameters:
+      - name: completed
+        in: query
+        required: false
+        description: Filter tasks by completion status
         schema:
-          $ref: ../components/schemas/Task.yaml
-  responses:
-    '201':
-      description: Created
+          type: boolean
+          example: true
+      - name: limit
+        in: query
+        required: false
+        description: Maximum number of tasks to return
+        schema:
+          type: integer
+          example: 10
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: ../components/schemas/Task.yaml
+
+  post:
+    summary: Create a new task
+    tags:
+      - Tasks
+    requestBody:
+      required: true
       content:
         application/json:
           schema:
             $ref: ../components/schemas/Task.yaml
-    '400':
-      $ref: ../components/responses/BadRequest.yaml
+    responses:
+      '201':
+        description: Created
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/Task.yaml
+      '400':
+        $ref: ../components/responses/BadRequest.yaml
 
-'/tasks/{id}':
+/tasks/{id}:
   get:
     summary: Get a task by ID
     tags:

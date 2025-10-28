@@ -7,6 +7,6 @@ servers:
 tags:
   - name: Tasks
     description: Task-related endpoints
+
 paths:
-  /tasks:
-    $ref: paths/tasks.yaml
+  $ref: paths/tasks.yaml
