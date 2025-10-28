@@ -1,0 +1,14 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 1
+    description: Unique identifier for the task.
+  title:
+    type: string
+    example: Buy groceries
+    description: The task description.
+  completed:
+    type: boolean
+    example: false
+    description: Completion status of the task.
