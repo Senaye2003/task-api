@@ -11,3 +11,11 @@ export async function createTask(newTask) {
 export async function getTaskById(id) {
   return taskRepository.findById(id);
 }
+
+export async function updateTaskById(id, updates) {
+  return taskRepository.updateById(id, updates);
+}
+
+export async function deleteTaskById(id) {
+  return taskRepository.deleteById(id);
+}
