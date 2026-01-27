@@ -9,3 +9,11 @@ export async function createTask(payload){
    const res = await api.post("/tasks", payload)
    return res.data;
 }
+
+
+export async function updateTask(id, payload){
+    const res = await api.patch(`/tasks/${id}`, payload)
+    return res.data;
+}
+
+
