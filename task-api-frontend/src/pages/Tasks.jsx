@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { getTasks, createTask, updateTask } from "../../api/tasks";
+import { useEffect, useMemo, useState } from "react";
+import { getTasks, createTask, updateTask, deleteTask } from "../../api/tasks";
 
 
 export function Tasks() {
@@ -16,6 +16,13 @@ export function Tasks() {
 
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
+
+  const [ deletingId, setDeletingId ] = useState(null)
+  const [deleteError, setDeleteError] = useState("") 
+
+  const [ filter, setFilter ] = useState("all")
+  const [ query, setQuery ] = useState("")
+  const [ sort, setSort ] = useState("newest")
 
   async function loadTasks() {
     try {
@@ -89,7 +96,32 @@ export function Tasks() {
     setEditTitle("");
   }
 
+//handle delete
+ async function handleDelete(task){
+    if(!confirm("Delete this task")){
+        return;
+    }
+    setDeletingId(task.id)
+    setDeleteError("")
+
+    try{
+        await deleteTask(task.id)
+        await loadTasks()
+
+        if (editingId === task.id){
+        cancelEdit()
+      }
+    } catch(e){
+        setDeleteError(
+        e?.response?.data?.error || e.message || "Failed to delete task",
+      );
+    } finally{
+        setDeletingId(null)
+    } 
+ }
+
   async function saveEdit() {
+
     if (!editTitle.trim()) {
       setUpdatingError("Title is required");
       return;
@@ -110,6 +142,40 @@ export function Tasks() {
     }
   }
 
+
+const visibleTasksHandler = useMemo(() => {
+  let visibleTasks = tasks;
+
+  // filter
+  if (filter === "active") {
+    visibleTasks = visibleTasks.filter(task => !task.completed);
+  } else if (filter === "completed") {
+    visibleTasks = visibleTasks.filter(task => task.completed);
+  }
+
+  // search
+  const q = query.trim().toLowerCase();
+  if (q) {
+    visibleTasks = visibleTasks.filter(task =>
+      task.title.toLowerCase().includes(q)
+    );
+  }
+
+  // sort
+  if (sort === "newest") {
+    visibleTasks = [...visibleTasks].sort((a, b) => b.id - a.id);
+  } else if (sort === "oldest") {
+    visibleTasks = [...visibleTasks].sort((a, b) => a.id - b.id);
+  }
+
+  return visibleTasks;
+}, [tasks, filter, query, sort]);
+
+let emptyMessage = "No tasks yet";
+if(query.trim()) emptyMessage = "No results for your search";
+else if (filter === "active") emptyMessage = "No active tasks";
+else if (filter === "completed") emptyMessage = "No completed tasks";
+
   return (
     <div>
       <h1> Tasks </h1>
@@ -126,54 +192,87 @@ export function Tasks() {
         </button>
       </form>
 
-      {submitStatus === "error" && <p> Error: {submitError}</p>}
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
 
-      {tasks.map((task) => {
-        const isUpdating = updatingId === task.id;
-        const isEditing = editingId === task.id;
+      <button type="button" onClick={() => setFilter("active")}>active</button>
+      <button type="button" onClick={()=>{setFilter("completed")}}> completed </button>
+      <button type="button" onClick = {()=>{setFilter("all")}}> all </button>
 
-        return (
-          <div key={task.id}>
-            <input
-              type="checkbox"
-              checked={task.completed}
-              disabled={isUpdating}
-              onChange={() => handleToggle(task)}
-            />
+      <select value={sort} onChange={(e)=>{ setSort(e.target.value)}}>
+        <option value="newest" > newest </option>
+        <option value= "oldest"> oldest </option>
+      </select>
 
-            {isEditing ? (
-              <>
+      
+
+      {status === "success" && <p>Showing {visibleTasksHandler.length} of {tasks.length}</p>}
+      {status === "success" && visibleTasksHandler.length === 0 && <p>{emptyMessage}</p>}
+
+      {status === "success" &&
+          visibleTasksHandler.map((task) => {
+            const isUpdating = updatingId === task.id;
+            const isEditing = editingId === task.id;
+            const isDeleting = deletingId === task.id;
+
+            return (
+              <div key={task.id}>
                 <input
-                  value={editTitle}
-                  disabled={isUpdating}
-                  onChange={(e) => setEditTitle(e.target.value)}
+                  type="checkbox"
+                  checked={task.completed}
+                  disabled={isUpdating || isDeleting}
+                  onChange={() => handleToggle(task)}
                 />
-                <button type="button" disabled={isUpdating} onClick={saveEdit}>
-                  Save
-                </button>
+
+                {isEditing ? (
+                  <>
+                    <input
+                      value={editTitle}
+                      disabled={isUpdating || isDeleting}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      disabled={isUpdating || isDeleting}
+                      onClick={saveEdit}
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isUpdating || isDeleting}
+                      onClick={cancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span>{task.title}</span>
+                    <button
+                      type="button"
+                      disabled={isUpdating || isDeleting}
+                      onClick={() => startEdit(task)}
+                    >
+                      Edit
+                    </button>
+                  </>
+                )}
+
                 <button
                   type="button"
-                  disabled={isUpdating}
-                  onClick={cancelEdit}
+                  disabled={isUpdating || isDeleting}
+                  onClick={() => handleDelete(task)}
                 >
-                  Cancel
+                  {isDeleting ? "Deleting..." : "Delete"}
                 </button>
-              </>
-            ) : (
-              <>
-                <span>{task.title}</span>
-                <button
-                  type="button"
-                  disabled={isUpdating}
-                  onClick={() => startEdit(task)}
-                >
-                  Edit
-                </button>
-              </>
-            )}
-          </div>
-        );
+              </div>
+            );
       })}
+
+      
     </div>
   );
 }

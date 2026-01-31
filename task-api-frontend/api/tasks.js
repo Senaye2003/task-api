@@ -17,3 +17,7 @@ export async function updateTask(id, payload){
 }
 
 
+export async function deleteTask(id){
+    await api.delete(`/tasks/${id}`)
+    return;
+}
