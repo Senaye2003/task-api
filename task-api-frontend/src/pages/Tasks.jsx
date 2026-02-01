@@ -1,6 +1,7 @@
+import './Tasks.css'
 import { useEffect, useMemo, useState } from "react";
 import { getTasks, createTask, updateTask, deleteTask } from "../../api/tasks";
-
+import { TaskRow } from "./TaskRow";
 
 export function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -17,18 +18,19 @@ export function Tasks() {
   const [editingId, setEditingId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
 
-  const [ deletingId, setDeletingId ] = useState(null)
-  const [deleteError, setDeleteError] = useState("") 
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
 
-  const [ filter, setFilter ] = useState("all")
-  const [ query, setQuery ] = useState("")
-  const [ sort, setSort ] = useState("newest")
+  const [filter, setFilter] = useState("all");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("newest");
 
   async function loadTasks() {
     try {
       setStatus("loading");
-      const data = await getTasks();
+      setError("");
 
+      const data = await getTasks();
       const list = Array.isArray(data) ? data : (data.tasks ?? []);
       setTasks(list);
 
@@ -45,7 +47,12 @@ export function Tasks() {
 
     try {
       await updateTask(task.id, { completed: !task.completed });
-      await loadTasks();
+
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === task.id ? { ...t, completed: !t.completed } : t,
+        ),
+      );
     } catch (e) {
       setUpdatingError(
         e?.response?.data?.error || e.message || "Failed to update task",
@@ -54,7 +61,6 @@ export function Tasks() {
       setUpdatingId(null);
     }
   }
-
   useEffect(() => {
     loadTasks();
   }, []);
@@ -85,43 +91,39 @@ export function Tasks() {
     }
   }
 
- function startEdit(task) {
+  function startEdit(task) {
     setEditingId(task.id);
     setEditTitle(task.title);
     setUpdatingError("");
   }
 
- function cancelEdit() {
+  function cancelEdit() {
     setEditingId(null);
     setEditTitle("");
   }
 
-//handle delete
- async function handleDelete(task){
-    if(!confirm("Delete this task")){
-        return;
-    }
-    setDeletingId(task.id)
-    setDeleteError("")
+  async function handleDelete(task) {
+    if (!confirm("Delete this task")) return;
 
-    try{
-        await deleteTask(task.id)
-        await loadTasks()
+    setDeletingId(task.id);
+    setDeleteError("");
 
-        if (editingId === task.id){
-        cancelEdit()
-      }
-    } catch(e){
-        setDeleteError(
+    try {
+      await deleteTask(task.id);
+
+      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+
+      if (editingId === task.id) cancelEdit();
+    } catch (e) {
+      setDeleteError(
         e?.response?.data?.error || e.message || "Failed to delete task",
       );
-    } finally{
-        setDeletingId(null)
-    } 
- }
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   async function saveEdit() {
-
     if (!editTitle.trim()) {
       setUpdatingError("Title is required");
       return;
@@ -142,137 +144,150 @@ export function Tasks() {
     }
   }
 
+  const visibleTasksHandler = useMemo(() => {
+    let visibleTasks = tasks;
 
-const visibleTasksHandler = useMemo(() => {
-  let visibleTasks = tasks;
+    // filter
+    if (filter === "active") {
+      visibleTasks = visibleTasks.filter((task) => !task.completed);
+    } else if (filter === "completed") {
+      visibleTasks = visibleTasks.filter((task) => task.completed);
+    }
 
-  // filter
-  if (filter === "active") {
-    visibleTasks = visibleTasks.filter(task => !task.completed);
-  } else if (filter === "completed") {
-    visibleTasks = visibleTasks.filter(task => task.completed);
-  }
+    // search
+    const q = query.trim().toLowerCase();
+    if (q) {
+      visibleTasks = visibleTasks.filter((task) =>
+        task.title.toLowerCase().includes(q),
+      );
+    }
 
-  // search
-  const q = query.trim().toLowerCase();
-  if (q) {
-    visibleTasks = visibleTasks.filter(task =>
-      task.title.toLowerCase().includes(q)
-    );
-  }
+    // sort
+    if (sort === "newest") {
+      visibleTasks = [...visibleTasks].sort((a, b) => b.id - a.id);
+    } else if (sort === "oldest") {
+      visibleTasks = [...visibleTasks].sort((a, b) => a.id - b.id);
+    }
 
-  // sort
-  if (sort === "newest") {
-    visibleTasks = [...visibleTasks].sort((a, b) => b.id - a.id);
-  } else if (sort === "oldest") {
-    visibleTasks = [...visibleTasks].sort((a, b) => a.id - b.id);
-  }
+    return visibleTasks;
+  }, [tasks, filter, query, sort]);
 
-  return visibleTasks;
-}, [tasks, filter, query, sort]);
-
-let emptyMessage = "No tasks yet";
-if(query.trim()) emptyMessage = "No results for your search";
-else if (filter === "active") emptyMessage = "No active tasks";
-else if (filter === "completed") emptyMessage = "No completed tasks";
+  let emptyMessage = "No tasks yet";
+  if (query.trim()) emptyMessage = "No results for your search";
+  else if (filter === "active") emptyMessage = "No active tasks";
+  else if (filter === "completed") emptyMessage = "No completed tasks";
 
   return (
-    <div>
-      <h1> Tasks </h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-          }}
-          placeholder="New Task"
-        />
-        <button type="submit" disabled={submitStatus === "loading"}>
-          Add
-        </button>
-      </form>
+    <div className="tasksPage">
+      <div className="tasksContainer">
+        <h1 className="tasksTitle">Tasks</h1>
 
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+        <div className="tasksPanel">
+          {status === "loading" && (
+            <p className="tasksInfo">Loading tasks...</p>
+          )}
 
-      <button type="button" onClick={() => setFilter("active")}>active</button>
-      <button type="button" onClick={()=>{setFilter("completed")}}> completed </button>
-      <button type="button" onClick = {()=>{setFilter("all")}}> all </button>
+          {status === "error" && <p className="tasksError">Error: {error}</p>}
 
-      <select value={sort} onChange={(e)=>{ setSort(e.target.value)}}>
-        <option value="newest" > newest </option>
-        <option value= "oldest"> oldest </option>
-      </select>
+          {submitError && <p className="tasksError">Error: {submitError}</p>}
 
-      
+          {updatingError && (
+            <p className="tasksError">Error: {updatingError}</p>
+          )}
 
-      {status === "success" && <p>Showing {visibleTasksHandler.length} of {tasks.length}</p>}
-      {status === "success" && visibleTasksHandler.length === 0 && <p>{emptyMessage}</p>}
+          {deleteError && <p className="tasksError">Error: {deleteError}</p>}
+        </div>
 
-      {status === "success" &&
-          visibleTasksHandler.map((task) => {
-            const isUpdating = updatingId === task.id;
-            const isEditing = editingId === task.id;
-            const isDeleting = deletingId === task.id;
+        <form className="tasksForm" onSubmit={handleSubmit}>
+          <input
+            className="tasksInput"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="New Task"
+          />
+          <button
+            className="tasksButton"
+            type="submit"
+            disabled={submitStatus === "loading"}
+          >
+            Add
+          </button>
+        </form>
 
-            return (
-              <div key={task.id}>
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  disabled={isUpdating || isDeleting}
-                  onChange={() => handleToggle(task)}
-                />
+        <div className="tasksControls">
+          <input
+            className="tasksInput tasksSearch"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search tasks…"
+          />
 
-                {isEditing ? (
-                  <>
-                    <input
-                      value={editTitle}
-                      disabled={isUpdating || isDeleting}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      disabled={isUpdating || isDeleting}
-                      onClick={saveEdit}
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isUpdating || isDeleting}
-                      onClick={cancelEdit}
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <span>{task.title}</span>
-                    <button
-                      type="button"
-                      disabled={isUpdating || isDeleting}
-                      onClick={() => startEdit(task)}
-                    >
-                      Edit
-                    </button>
-                  </>
-                )}
+          <div className="tasksFilterGroup">
+            <button
+              type="button"
+              className={`tasksChip ${filter === "active" ? "tasksChipActive" : ""}`}
+              onClick={() => setFilter("active")}
+            >
+              Active
+            </button>
 
-                <button
-                  type="button"
-                  disabled={isUpdating || isDeleting}
-                  onClick={() => handleDelete(task)}
-                >
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </button>
-              </div>
-            );
-      })}
+            <button
+              type="button"
+              className={`tasksChip ${filter === "completed" ? "tasksChipActive" : ""}`}
+              onClick={() => setFilter("completed")}
+            >
+              Completed
+            </button>
 
-      
+            <button
+              type="button"
+              className={`tasksChip ${filter === "all" ? "tasksChipActive" : ""}`}
+              onClick={() => setFilter("all")}
+            >
+              All
+            </button>
+
+            <select
+              className="tasksSelect"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+            </select>
+          </div>
+        </div>
+
+        {status === "success" && (
+          <p className="tasksMeta">
+            Showing {visibleTasksHandler.length} of {tasks.length}
+          </p>
+        )}
+
+        {status === "success" && visibleTasksHandler.length === 0 && (
+          <p className="tasksMeta">{emptyMessage}</p>
+        )}
+
+        <div className="tasksList">
+          {status === "success" &&
+            visibleTasksHandler.map((task) => (
+              <TaskRow
+                key={task.id}
+                task={task}
+                isUpdating={updatingId === task.id}
+                isDeleting={deletingId === task.id}
+                isEditing={editingId === task.id}
+                editTitle={editTitle}
+                setEditTitle={setEditTitle}
+                onToggle={handleToggle}
+                onStartEdit={startEdit}
+                onSaveEdit={saveEdit}
+                onCancelEdit={cancelEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,135 @@
+/* Page layout */
+.tasksPage {
+  min-height: 100vh;
+  background: #f7f7f8;
+  padding: 32px 16px;
+}
+
+.tasksContainer {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* Header */
+.tasksTitle {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+/* Panels & messages */
+.tasksPanel {
+  margin-top: 16px;
+  padding: 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.tasksError {
+  color: #b91c1c;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.tasksInfo {
+  color: #374151;
+  font-size: 14px;
+}
+
+/* Form */
+.tasksForm {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.tasksInput {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+}
+
+.tasksInput:focus {
+  border-color: #111827;
+}
+
+.tasksButton {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background-color: #111827;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tasksButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Controls */
+.tasksControls {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.tasksSearch {
+  max-width: 240px;
+}
+
+.tasksFilterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tasksChip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: rgb(99, 78, 78);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tasksChipActive {
+  background-color: #111827;
+  color: white;
+  border-color: #111827;
+}
+
+.tasksSelect {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: rgb(8, 1, 16);
+  font-size: 15px;
+  color:#d1d5db
+}
+
+/* Meta info */
+.tasksMeta {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Task list */
+.tasksList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

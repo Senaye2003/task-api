@@ -1,0 +1,82 @@
+.taskRow {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Left side */
+.taskRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.taskRowCheckbox {
+  width: 16px;
+  height: 16px;
+}
+
+.taskRowTitle {
+  font-size: 20px;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 420px;
+}
+
+.taskRowTitleDone {
+  color: #6b7280;
+  text-decoration: line-through;
+}
+
+/* Editing input */
+.taskRowInput {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 20px;
+  outline: none;
+}
+
+.taskRowInput:focus {
+  border-color: #111827;
+}
+
+/* Right side buttons */
+.taskRowRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.taskRowBtn{
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: rgb(8, 1, 19);
+  font-size: 15px;
+  cursor: pointer;
+  color:#d1d5db;
+}
+
+.taskRowBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.taskRowDanger {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.taskRowDanger:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
