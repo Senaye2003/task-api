@@ -17,14 +17,9 @@ A full-stack task manager built with a **Node.js + Prisma backend** and a **Reac
 
 ## Tech Stack
 - **Frontend:** React, Vite, JavaScript, CSS
-- **Backend:** Node.js, Express, Prisma, SQLite / PostgreSQL
+- **Backend:** Node.js, Express, Prisma, PostgreSQL
 
 ---
-
-## Repo Structure
-task-api/
-├── task-api-backend/
-└── task-api-frontend/
 
 ## Author
 **Senaye Weldeberhan**  
