@@ -1,0 +1,35 @@
+/* Form */
+.tasksForm {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.tasksInput {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+}
+
+.tasksInput:focus {
+  border-color: #111827;
+}
+
+.tasksButton {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background-color: #111827;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tasksButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,43 @@
+/* Controls */
+.tasksControls {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.tasksSearch {
+  max-width: 240px;
+}
+
+.tasksFilterGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tasksChip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: rgb(99, 78, 78);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tasksChipActive {
+  background-color: #111827;
+  color: white;
+  border-color: #111827;
+}
+
+.tasksSelect {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: rgb(8, 1, 16);
+  font-size: 15px;
+  color:#d1d5db
+}

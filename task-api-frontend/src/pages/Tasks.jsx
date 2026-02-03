@@ -1,8 +1,9 @@
-import './Tasks.css'
+import "./Tasks.css";
 import { useEffect, useMemo, useState } from "react";
 import { getTasks, createTask, updateTask, deleteTask } from "../../api/tasks";
 import { TaskRow } from "./TaskRow";
-
+import { TaskForm } from "./TaskForm";
+import { TaskFilters } from "./TaskFilter";
 export function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [status, setStatus] = useState("idle");
@@ -198,65 +199,21 @@ export function Tasks() {
           {deleteError && <p className="tasksError">Error: {deleteError}</p>}
         </div>
 
-        <form className="tasksForm" onSubmit={handleSubmit}>
-          <input
-            className="tasksInput"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="New Task"
-          />
-          <button
-            className="tasksButton"
-            type="submit"
-            disabled={submitStatus === "loading"}
-          >
-            Add
-          </button>
-        </form>
+        <TaskForm
+          title={title}
+          setTitle={setTitle}
+          onSubmit={handleSubmit}
+          submitStatus={submitStatus}
+        />
 
-        <div className="tasksControls">
-          <input
-            className="tasksInput tasksSearch"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search tasks…"
-          />
-
-          <div className="tasksFilterGroup">
-            <button
-              type="button"
-              className={`tasksChip ${filter === "active" ? "tasksChipActive" : ""}`}
-              onClick={() => setFilter("active")}
-            >
-              Active
-            </button>
-
-            <button
-              type="button"
-              className={`tasksChip ${filter === "completed" ? "tasksChipActive" : ""}`}
-              onClick={() => setFilter("completed")}
-            >
-              Completed
-            </button>
-
-            <button
-              type="button"
-              className={`tasksChip ${filter === "all" ? "tasksChipActive" : ""}`}
-              onClick={() => setFilter("all")}
-            >
-              All
-            </button>
-
-            <select
-              className="tasksSelect"
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-            >
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-            </select>
-          </div>
-        </div>
+        <TaskFilters
+          filter={filter}
+          setFilter={setFilter}
+          query={query}
+          setQuery={setQuery}
+          sort={sort}
+          setSort={setSort}
+        />
 
         {status === "success" && (
           <p className="tasksMeta">
