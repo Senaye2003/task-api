@@ -4,7 +4,6 @@ import { checkValidationResults } from './handleValidationErrors.js';
 export const validateTask = [
   body('title')
     .trim()
-    .escape()
     .notEmpty()
     .withMessage('Title is required')
     .bail()
@@ -14,7 +13,8 @@ export const validateTask = [
   body('completed')
     .optional()
     .isBoolean()
-    .withMessage('completed must be true or false'),
+    .withMessage('completed must be true or false')
+    .toBoolean(),
 
   checkValidationResults,
 ];

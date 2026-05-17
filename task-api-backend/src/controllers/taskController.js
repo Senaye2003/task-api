@@ -1,8 +1,12 @@
 import * as taskService from '../services/taskService.js';
 
 export async function getTasks(req, res, next) {
-  const tasks = await taskService.getAllTasks();
-  res.json(tasks);
+  try {
+    const tasks = await taskService.getAllTasks();
+    res.json(tasks);
+  } catch (err) {
+    next(err);
+  }
 }
 
 export async function createTask(req, res, next) {
@@ -19,10 +23,10 @@ export async function createTask(req, res, next) {
 export async function getTaskById(req, res, next) {
   const id = Number(req.params.id);
 
-  if (isNaN(id)) {
+  if (!Number.isInteger(id)) {
     return res.status(400).json({
       error: "Validation failed",
-      details: ["ID must be a number"],
+      details: ["ID must be an integer"],
     });
   }
 
@@ -42,10 +46,10 @@ export async function getTaskById(req, res, next) {
 export async function updateTask(req, res, next) {
   const id = Number(req.params.id);
 
-  if (isNaN(id)) {
+  if (!Number.isInteger(id)) {
     return res.status(400).json({
       error: "Validation failed",
-      details: ["ID must be a number"],
+      details: ["ID must be an integer"],
     });
   }
 
@@ -54,13 +58,12 @@ export async function updateTask(req, res, next) {
   if (Object.prototype.hasOwnProperty.call(req.body, "completed")) updates.completed = req.body.completed;
 
   try {
-    // First check existence (so we return 404 instead of Prisma throwing)
-    const existing = await taskService.getTaskById(id);
-    if (!existing) return res.status(404).json({ error: "Task not found" });
-
     const updated = await taskService.updateTaskById(id, updates);
     res.status(200).json(updated);
   } catch (err) {
+    if (err.code === "P2025") {
+      return res.status(404).json({ error: "Task not found" });
+    }
     next(err);
   }
 }
@@ -68,20 +71,20 @@ export async function updateTask(req, res, next) {
 export async function deleteTask(req, res, next) {
   const id = Number(req.params.id);
 
-  if (isNaN(id)) {
+  if (!Number.isInteger(id)) {
     return res.status(400).json({
       error: "Validation failed",
-      details: ["ID must be a number"],
+      details: ["ID must be an integer"],
     });
   }
 
   try {
-    const existing = await taskService.getTaskById(id);
-    if (!existing) return res.status(404).json({ error: "Task not found" });
-
     await taskService.deleteTaskById(id);
-    res.status(204).send(); 
+    res.status(204).send();
   } catch (err) {
+    if (err.code === "P2025") {
+      return res.status(404).json({ error: "Task not found" });
+    }
     next(err);
   }
 }

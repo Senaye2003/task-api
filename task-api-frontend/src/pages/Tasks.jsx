@@ -47,12 +47,12 @@ export function Tasks() {
     setUpdatingError("");
 
     try {
-      await updateTask(task.id, { completed: !task.completed });
+      const updated = await updateTask(task.id, {
+        completed: !task.completed,
+      });
 
       setTasks((prev) =>
-        prev.map((t) =>
-          t.id === task.id ? { ...t, completed: !t.completed } : t,
-        ),
+        prev.map((t) => (t.id === task.id ? { ...t, ...updated } : t)),
       );
     } catch (e) {
       setUpdatingError(
@@ -79,10 +79,13 @@ export function Tasks() {
       setSubmitStatus("loading");
       setSubmitError("");
 
-      await createTask({ title: cleanTitle, completed: false });
+      const created = await createTask({
+        title: cleanTitle,
+        completed: false,
+      });
 
+      setTasks((prev) => [created, ...prev]);
       setTitle("");
-      await loadTasks();
       setSubmitStatus("idle");
     } catch (e) {
       setSubmitStatus("error");
@@ -133,8 +136,12 @@ export function Tasks() {
     setUpdatingError("");
 
     try {
-      await updateTask(editingId, { title: editTitle.trim() });
-      await loadTasks();
+      const updated = await updateTask(editingId, {
+        title: editTitle.trim(),
+      });
+      setTasks((prev) =>
+        prev.map((t) => (t.id === editingId ? { ...t, ...updated } : t)),
+      );
       cancelEdit();
     } catch (e) {
       setUpdatingError(
