@@ -83,9 +83,6 @@ task-management-app/
 └── CODE_REVIEW.md      Code review notes
 ```
 
-## Deployment
-
-See [DEPLOY.md](./DEPLOY.md) for the Render + Vercel walkthrough.
 
 ## Author
 
